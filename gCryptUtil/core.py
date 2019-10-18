@@ -11,6 +11,7 @@
 import base64
 import re
 from google.cloud import kms_v1
+from google.oauth2 import service_account
 
 
 class CryptUtil:
@@ -18,7 +19,7 @@ class CryptUtil:
     def __init__(self,
                  project_id: str = None, location_id: str = None,
                  key_ring_id: str = None, crypto_key_id: str = None,
-                 key_name: str = None):
+                 key_name: str = None, credential_path: str = None):
         """
         init
         :param project_id: GCP project id
@@ -27,7 +28,15 @@ class CryptUtil:
         :param crypto_key_id: crypt key
         :param key_name: full path of key like below,
             'projects/(\S+)/locations/(\S+)/keyRings/(\S+)/cryptoKeys/(\S+)'
+        :param credential_path: credential file path for a service account
         """
+        if credential_path is not None:
+            credentials = service_account.Credentials.from_service_account_file(
+                credential_path
+            )
+        else:
+            credentials = None
+
         if key_name is not None:
             self.__name = key_name
             ids = re.findall(
@@ -44,14 +53,18 @@ class CryptUtil:
             self.__location_id = ids[1]
             self.__key_ring_id = ids[2]
             self.__crypto_key_id = ids[3]
-            self.__client = kms_v1.KeyManagementServiceClient()
+            self.__client = kms_v1.KeyManagementServiceClient(
+                credentials=credentials
+            )
         else:
             self.__project_id = project_id
             self.__location_id = location_id
             self.__key_ring_id = key_ring_id
             self.__crypto_key_id = crypto_key_id
-            self.__client = kms_v1.KeyManagementServiceClient()
-            self.__name = self.__update_key_name()
+            self.__client = kms_v1.KeyManagementServiceClient(
+                credentials=credentials
+            )
+            self.__update_key_name()
 
     @property
     def project_id(self):
@@ -77,7 +90,7 @@ class CryptUtil:
         """
         update context key name
         """
-        return self.__client.crypto_key_path(
+        self.__name = self.__client.crypto_key_path(
             self.__project_id, self.__location_id,
             self.__key_ring_id, self.__crypto_key_id)
 
