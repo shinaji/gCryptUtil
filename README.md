@@ -12,6 +12,7 @@ pip install --upgrade  gCryptUtil
 
 # Usage
 ```
+from gCryptUtil import CryptUtil
 util = CryptUtil(project_id, location_id, key_ring_id, crypto_key_id)
 msg = "test123"
 enc_msg = util.encrypt(msg)

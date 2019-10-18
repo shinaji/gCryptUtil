@@ -44,6 +44,7 @@ class CryptUtil:
             self.__location_id = ids[1]
             self.__key_ring_id = ids[2]
             self.__crypto_key_id = ids[3]
+            self.__client = kms_v1.KeyManagementServiceClient()
         else:
             self.__project_id = project_id
             self.__location_id = location_id
@@ -51,7 +52,6 @@ class CryptUtil:
             self.__crypto_key_id = crypto_key_id
             self.__client = kms_v1.KeyManagementServiceClient()
             self.__name = self.__update_key_name()
-        self.__client = kms_v1.KeyManagementServiceClient()
 
     @property
     def project_id(self):
