@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from gCryptUtil import __version__
 
-REQUIRES = ["google-cloud-kms"]
+REQUIRES = ["google-cloud-kms>=2.0.1"]
 CLASSIFIERS = [
     "Intended Audience :: Developers",
     "Development Status :: 4 - Beta",

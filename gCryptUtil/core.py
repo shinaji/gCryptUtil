@@ -10,7 +10,7 @@
 """
 import base64
 import re
-from google.cloud import kms_v1
+from google.cloud import kms
 from google.oauth2 import service_account
 
 
@@ -53,7 +53,7 @@ class CryptUtil:
             self.__location_id = ids[1]
             self.__key_ring_id = ids[2]
             self.__crypto_key_id = ids[3]
-            self.__client = kms_v1.KeyManagementServiceClient(
+            self.__client = kms.KeyManagementServiceClient(
                 credentials=credentials
             )
         else:
@@ -61,7 +61,7 @@ class CryptUtil:
             self.__location_id = location_id
             self.__key_ring_id = key_ring_id
             self.__crypto_key_id = crypto_key_id
-            self.__client = kms_v1.KeyManagementServiceClient(
+            self.__client = kms.KeyManagementServiceClient(
                 credentials=credentials
             )
             self.__update_key_name()
@@ -102,7 +102,8 @@ class CryptUtil:
         :return: base64 encoded encrypted data
         """
         data_bytes = data.encode(char_code)
-        response = self.__client.encrypt(self.__name, data_bytes)
+        response = self.__client.encrypt(
+            name=self.__name, plaintext=data_bytes)
         return base64.b64encode(response.ciphertext).decode("utf8")
 
     def decrypt(self, b64_data: str, char_code: str = "utf8") -> str:
@@ -113,7 +114,7 @@ class CryptUtil:
         :return: plain text
         """
         enc_byes = base64.b64decode(b64_data)
-        response = self.__client.decrypt(self.__name, enc_byes)
+        response = self.__client.decrypt(name=self.__name, ciphertext=enc_byes)
         return response.plaintext.decode(char_code)
 
 
